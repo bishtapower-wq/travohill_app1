@@ -1,0 +1,36 @@
+name: Build Travohill APK
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 'stable'
+
+      - name: Create flutter project files (if missing)
+        run: |
+          if [ ! -f "android/app/build.gradle" ]; then
+            flutter create .
+          fi
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build debug APK
+        run: flutter build apk --debug
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: travohill-apk
+          path: build/app/outputs/flutter-apk/*.apk
